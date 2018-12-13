@@ -2,13 +2,22 @@
 <html>
 <head>
 <script src="browserElements.js"></script>
-<link rel="stylesheet" href="browserElements.css">
 <script>
-	window.onload=browserElements.main;
+	window.onload=function(){
+		a=new Date();
+		browserElements.main();
+		console.log("Load time: "+(new Date()-a)+"ms")
+		var e=document.createElement("if-chrome");
+		e.innerHTML="abc";
+		document.body.appendChild(e);
+	}
 </script>
+<!--<style>if-chrome[minv="69"][maxv$="71"]{color:blue}</style><!---->
 </head>
 <body>
-<if-chrome>chrome</if-chrome>
+???
+<if-chrome minv="69" maxv="71">chrome</if-chrome>
+<if-chrome minv="69" maxv="69">chrome</if-chrome>
 <if-ie>ie</if-ie>
 <if-edge>edge</if-edge>
 <if-firefox>firefox</if-firefox>
