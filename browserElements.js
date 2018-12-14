@@ -60,7 +60,7 @@
 			var type=browserElements.getBrowser();
 			var ver=browserElements.getBrowserVersion();
 			var min, max;
-			var maxmax=Math.pow(10,((ver+"").length)-1);
+			var maxmax=Math.pow(10,((ver+"").length))-1;
 			var ifname="if-"+type.toLowerCase();
 			var ifcust="if-custom[type~=\""+type.toLowerCase()+"\"]";
 			var txt="if-ie, if-edge, if-firefox, if-chrome, if-custom{display: none;}\n"; // Makes browserElements not show up in the 0.05 seconds it takes to generate the CSS
