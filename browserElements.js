@@ -56,17 +56,15 @@
 			// if-custom[type~="chrome"][minv=(1..70)]:not([maxv]),
 			// if-custom[type~="chrome"]:not([minv]):not([maxv]), {display:block;}
 			
-			var sheet=document.createElement("style");
-			var type=browserElements.getBrowser();
-			var ver=browserElements.getBrowserVersion();
-			var min, max;
-			var maxmax=Math.pow(10,((ver+"").length))-1;
-			var ifname="if-"+type.toLowerCase();
-			var ifcust="if-custom[type~=\""+type.toLowerCase()+"\"]";
-			var txt="if-ie, if-edge, if-firefox, if-chrome, if-custom{display: none;}\n"; // Makes browserElements not show up in the 0.05 seconds it takes to generate the CSS
-			var txt2=""; // A weird bug in some Chrome versions makes too many selectors not work. Sorry, but it has to be done this way
-			txt+=ifname+":not([minv]):not([maxv]),"; // if-chrome:not([minv]):not([maxv])
-			txt2+=ifcust+":not([minv]):not([maxv]),";
+			var sheet=document.createElement("style"),
+				type=browserElements.getBrowser(),
+				ver=browserElements.getBrowserVersion(),
+				min, max,
+				maxmax=Math.pow(10,((ver+"").length))-1,
+				ifname="if-"+type.toLowerCase(),
+				ifcust="if-custom[type~=\""+type.toLowerCase()+"\"]",
+				txt=ifname+":not([minv]):not([maxv]),",
+				txt2=ifcust+":not([minv]):not([maxv]),"; // A weird bug in some Chrome versions makes too many selectors not work. Sorry, but it has to be done this way
 			for (min=1; min<=ver; min++){
 				txt+=ifname+"[minv=\""+min+"\"]:not([maxv]),"; // if-chrome[minv=(1..70)]:not([maxv])
 				txt2+=ifcust+"[minv=\""+min+"\"]:not([maxv]),";
