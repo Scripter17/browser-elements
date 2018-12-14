@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="browserElements.js"></script>
+<script>
+	window.onload=function(){
+		a=new Date();
+		browserElements.main();
+		console.log("Load time: "+(new Date()-a)+"ms")
+		console.log("UA: "+navigator.userAgent)
+		console.log("Browser: "+browserElements.getBrowser())
+		console.log("Version: "+browserElements.getBrowserVersion())
+		
+	}
+</script>
+<!--<style>if-chrome[minv="69"][maxv$="71"]{color:blue}</style><!---->
+</head>
+<body>
+???
+<if-chrome minv="69" maxv="71">chrome 69-71</if-chrome>
+<if-chrome minv="69" maxv="69">chrome 69-69</if-chrome>
+<if-custom type="ie edge">IE/Edge</if-custom>
+<if-ie>ie</if-ie>
+<if-edge>edge</if-edge>
+<if-firefox minv="61" maxv="63">firefox</if-firefox>
+</body>
+</html>
