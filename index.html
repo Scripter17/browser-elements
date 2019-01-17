@@ -3,25 +3,39 @@
 <head>
 <script src="browserElements.js"></script>
 <script>
-	window.onload=function(){
-		a=new Date();
-		browserElements.main();
-		console.log("Load time: "+(new Date()-a)+"ms")
-		console.log("UA: "+navigator.userAgent)
-		console.log("Browser: "+browserElements.getBrowser())
-		console.log("Version: "+browserElements.getBrowserVersion())
-		
-	}
+	window.onload=browserElements.main;
 </script>
-<style>if-ie, if-edge, if-firefox, if-chrome, if-custom{display: none;}</style>
+<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+<style>
+body{
+	margin:0;
+	font-family: 'Roboto', sans-serif;
+}
+#header{
+	background-color:#4747ff;
+	text-align:center;
+	margin-top:0;
+	padding:0.5em;
+	color:#EFEFEF;
+}
+div.content{
+	width:90%;
+	background-color:#E0E0E0;
+	left:0;
+	right:0;
+	margin:auto;
+	padding:0.5em;
+	border-radius:2px;
+	margin-bottom:2em;
+	box-shadow:1px 1px 3px #EEEEEE;
+}
+</style>
 </head>
 <body>
-???
-<if-chrome minv="69" maxv="71">chrome 69-71</if-chrome>
-<if-chrome minv="69" maxv="69">chrome 69-69</if-chrome>
-<if-custom type="ie edge">IE/Edge</if-custom>
-<if-ie>ie</if-ie>
-<if-edge>edge</if-edge>
-<if-firefox minv="61" maxv="63">firefox</if-firefox>
+<h1 id="header">browserElements.js</h1>
+<div class="content">Lorem ipsum</div>
+<div class="content">Lorem ipsum</div>
+<div class="content">Lorem ipsum</div>
+<div class="content">Lorem ipsum</div>
 </body>
 </html>

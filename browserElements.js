@@ -1,87 +1,120 @@
 (function(){
 	window.browserElements={
-		getIEVersion:function(){ // https://codepen.io/gapcode/pen/vEJNZN
-			var ua=window.navigator.userAgent;
-			var msie=ua.indexOf('MSIE ');
-			if (msie>0){return parseInt(ua.substring(msie+5, ua.indexOf('.', msie)), 10);}
-			var trident=ua.indexOf('Trident/');
-			if (trident>0){var rv=ua.indexOf('rv:'); return parseInt(ua.substring(rv+3, ua.indexOf('.', rv)), 10);}
-			var edge=ua.indexOf('Edge/');
-			if (edge>0){return parseInt(ua.substring(edge+5, ua.indexOf('.', edge)), 10);}
-			return false;
+		getVersion:{
+			ie:function(ua){ // https://codepen.io/gapcode/pen/vEJNZN
+				if (typeof ua!=="string"){ua=navigator.userAgent;}
+				var msie=ua.indexOf('MSIE ');
+				if (msie>0){return parseInt(ua.substring(msie+5, ua.indexOf('.', msie)), 10);}
+				var trident=ua.indexOf('Trident/');
+				if (trident>0){var rv=ua.indexOf('rv:'); return parseInt(ua.substring(rv+3, ua.indexOf('.', rv)), 10);}
+				var edge=ua.indexOf('Edge/');
+				if (edge>0){return parseInt(ua.substring(edge+5, ua.indexOf('.', edge)), 10);}
+				return false;
+			},
+			firefox:function(ua){ // Home-made function; Probably broken (User agent list: https://udger.com/resources/ua-list/browser-detail?browser=Firefox )
+				// You know you need to re-evaluate your code when you label something as "home-made".
+				if (typeof ua!=="string"){ua=navigator.userAgent;}
+				var i=ua.indexOf("Firefox");
+				var v=parseInt(ua.substr(i+8, ua.length-i-8));
+				return v;
+			},
+			chrome:function(ua){ // https://stackoverflow.com/a/4900484
+				if (typeof ua!=="string"){ua=navigator.userAgent;}
+				var raw=ua.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./);
+				return (raw?parseInt(raw[2], 10):false);
+			},
+			opera:function(ua){
+				if (typeof ua!=="string"){ua=navigator.userAgent;}
+				return parseInt(ua.match(/Opera[\/ ](\d+)/)[1])
+			},
+			undefined:function(){return undefined;}
 		},
-		getFireFoxVersion:function(){ // Home-made function; Probably broken (User agent list: https://udger.com/resources/ua-list/browser-detail?browser=Firefox )
-			// You know you need to re-evaluate your code when you label something as "home-made".
-			var ua=navigator.userAgent;
-			var i=ua.indexOf("Firefox");
-			var v=parseInt(ua.substr(i+8, ua.length-i-8));
-			return v;
-		},
-		getChromeVersion:function(){ // https://stackoverflow.com/a/4900484
-			var raw=navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./);
-			return (raw?parseInt(raw[2], 10):false);
-		},
+		types:["ie", "edge", "firefox", "chrome", "opera"],
 		getBrowser:function(){ // TODO: Make this much more rigorous.
-			var browser;
-			var IEdge=browserElements.getIEVersion();
+			var browser, i;
+			var IEdge=browserElements.getVersion.ie();
 			if (IEdge>=12 && typeof IEdge==="number"){
-				browser="Edge";
+				browser="edge";
 			} else if (IEdge<=11 && typeof IEdge==="number"){
-				browser="IE";
+				browser="ie";
 			} else if (navigator.userAgent.indexOf("Firefox")!=-1){
-				browser="Firefox";
-			} else if (navigator.userAgent.indexOf("Chrome")!=-1){
-				browser="Chrome";
+				browser="firefox";
+			} else if (navigator.userAgent.indexOf("Opera")!==-1){
+				browser="opera";
+			} else if (navigator.userAgent.indexOf("Chrome")!=-1 && window.navigator.vendor=="Google Inc"){
+				browser="chrome";
 			}
 			return browser;
 		},
 		getBrowserVersion:function(){
-			var type=browserElements.getBrowser();
-			if (type=="Chrome"){return browserElements.getChromeVersion();}
-			if (type=="Firefox"){return browserElements.getFireFoxVersion();}
-			if (type=="Edge"){return browserElements.getIEVersion()-11;}
-			if (type=="IE"){return browserElements.getIEVersion();}
-			return null;
+			try{
+				return window.browserElements.getVersion[window.browserElements.getBrowser()]()
+			} catch (e) {
+				return undefined;
+			}
 		},
-		main:function(){
-			// type=Chrome ver=70
-			//
-			// if-chrome[minv=(1..70)][maxv$=(70..999)],
-			// if-chrome[maxv$=(70..999)]:not([minv]),
-			// if-chrome[minv=(1..70)]:not([maxv]),
-			// if-chrome:not([minv]):not([maxv]), {display:block;}
-			//
-			// if-custom[type~="chrome"][minv=(1..70)][maxv$=(70..999)],
-			// if-custom[type~="chrome"][maxv$=(70..999)]:not([minv]),
-			// if-custom[type~="chrome"][minv=(1..70)]:not([maxv]),
-			// if-custom[type~="chrome"]:not([minv]):not([maxv]), {display:block;}
-			
-			var sheet=document.createElement("style"),
-				type=browserElements.getBrowser(),
-				ver=browserElements.getBrowserVersion(),
-				min, max,
-				maxmax=Math.pow(10,((ver+"").length))-1,
-				ifname="if-"+type.toLowerCase(),
-				ifcust="if-custom[type~=\""+type.toLowerCase()+"\"]",
-				txt=ifname+":not([minv]):not([maxv]),",
-				txt2=ifcust+":not([minv]):not([maxv]),"; // A weird bug in some Chrome versions makes too many selectors not work. Sorry, but it has to be done this way
-			for (min=1; min<=ver; min++){
-				txt+=ifname+"[minv=\""+min+"\"]:not([maxv]),"; // if-chrome[minv=(1..70)]:not([maxv])
-				txt2+=ifcust+"[minv=\""+min+"\"]:not([maxv]),";
-				for (max=ver; max<=maxmax; max++){
-					txt+=ifname+"[minv=\""+min+"\"][maxv$=\""+max+"\"],"; // if-chrome[minv=(1..70)][maxv$=(70..999)]
-					txt2+=ifcust+"[minv=\""+min+"\"][maxv$=\""+max+"\"],";
+		rangeConv:function(str){
+			if (!/\d*-\d*/.test(str)){return false;}
+			var range=str.split("-");
+			if (range.length==1){return [0, Infinity];}
+			if (range[0]===""){range[0]=0;}
+			if (range[1]===""){range[1]=Infinity;}
+			return [parseInt(range[0]), parseInt(range[1])]; // Array.map is not supported in IE6
+		},
+		validate:function(elem){
+			var i, noCond=true;
+			if (!elem.getAttribute){return true;}
+			for (i=0; i<browserElements.types.length; i++){
+				if (elem.getAttribute("if-"+browserElements.types[i])!==null){
+					noCond=false;
 				}
 			}
-			for (max=ver; max<=maxmax; max++){txt+=ifname+"[maxv$=\""+max+"\"]:not([minv]),";} // if-chrome[maxv$=(70..999)]:not([minv])
-			for (max=ver; max<=maxmax; max++){txt2+=ifcust+"[maxv$=\""+max+"\"]:not([minv]),";}
-			txt=txt.substr(0, txt.length-1)+"{display: block;}\n"+txt2.substr(0, txt2.length-1)+"{display: block;}";
-			sheet.innerHTML=txt;
-			document.head.appendChild(sheet);
-			/*console.log(txt.substr(0,300))
-			console.log("...")
-			console.log(txt.substr(txt.length-100,100))*/
-			browserElements.genCSS=txt;
+			if (noCond){return true;} // <elem>
+			var type=browserElements.getBrowser(),
+				ver=browserElements.getVersion[type](),
+				ev=elem.getAttribute("if-"+type);
+			if (ev===""){return true;} // <elem if-browser>
+			if (ev===null){return false;}
+			ev=browserElements.rangeConv(ev);
+			if (ev===false){return false;} // <elem if-browser="invalid string">
+			// if (ev.length==1){ev=[0, Infinity];}
+			if (elem.getAttribute("if-"+type)===null){return false;} // <elem if-other>
+			if (ev[0]<=ver && ver<=ev[1]){return true;} // <elem if-browser="i-j"> i<=ver<=j
+			return false;
+		},
+		main:function(elem, single, normalHandle, specialCopy){
+			var i;
+			if (elem===undefined || elem+""==="[object Event]"){elem=document.body;}
+			if (typeof specialCopy!=Array){specialCopy=["innerHTML", "attributes"]}
+			if (typeof normalHandle!=="function"){normalHandle=function(elem){elem.parentElement.removeChild(elem);}}
+			// If elements
+			// Stuff like <if-script if-chrome> will only run in Chrome
+			if (elem.tagName!==undefined && elem.tagName.substr(0,3)==="IF-"){
+				if (browserElements.validate(elem)){
+					var rep=document.createElement(elem.tagName.substr(3, elem.tagName.length-3));
+					for (i=0; i<specialCopy.length; i++){
+						// Copy data from the if-element to the replacement (default: ["innerHTML", "attributes"])
+						rep[specialCopy[i]]=elem[specialCopy[i]];
+					}
+					elem.parentNode.replaceChild(rep, elem);
+					return rep;
+				} else {
+					normalHandle(elem);
+				}
+				return elem;
+			}
+			
+			// Normal element handling
+			if (!browserElements.validate(elem)){
+				normalHandle(elem)
+			}
+			if (single==false){
+				for (i=0; i<elem.childNodes.length; i++){
+					browserElements.main(elem.childNodes[i]);
+				}
+			}
+			return elem;
 		}
 	}
+	window.browserElements.getVersion.edge=window.browserElements.getVersion.ie;
 })()
