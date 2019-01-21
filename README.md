@@ -1,5 +1,7 @@
 # Browser Elements
 
+Documentation can be found in [documentaion.md](documentation.md)
+
 ## How to use
 
 ### Initializing
@@ -15,9 +17,10 @@ Some more examples are below.
 
 ```html
 <p if-firefox if-chrome>You are using either FireFox or Google Chrome.</p>
-<p if-chrome="-60">You are using Google Chrome version 60 or below.</p>
-<p if-chrome="65-65">You are using Google Chrome version 65.</p>
-<p if-chrome="70-">You are using Google Chrome version 70 or above.</p>
+<p if-firefox="-60">You are using FireFox version 60 or below.</p>
+<p if-firefox="55-55">You are using FireFox version 55.</p>
+<p if-firefox="60-">You are using FireFox version 60 or above.</p>
+<p if-ie="6-6">You are dead to me.</p>
 ```
 
 The values of if-attributes are either an empty string or a range in the format `min-max`, where `min` and `max` are either numbers, or blank.\
@@ -30,7 +33,7 @@ Right now, `min` and `max` only detect the browser's major version. So detecting
 
 "If-elements" are like if-attributes, except if its if-attributes are match the user's browser, then it'll be replaced with a duplicate of itself without the `if-` prefix.
 
-Example:
+Examples:
 
 ```html
 <if-script if-firefox>
@@ -38,6 +41,32 @@ Example:
 </if-script>
 ```
 
-If the user is using FireFox, then that if-element will be replaced with a normal `script` element and run.
+```html
+<if-script if-ie>
+	window.location.href="https://www.mozilla.org/en-CA/firefox/new/";
+</if-script>
+```
+
+If the user is using the appropriate browser, then that if-element will be replaced with a normal `script` element and run.
 
 Any element can have the `if-` prefix, but its primary intended use is for `if-script` and `if-style` tags.
+
+Perhaps the most practical use of if-elements is using `if-style` to solve browser-compatibility issues without writing a bunch of spaghetti code.
+
+## Compatibility
+
+As of my last test, this script has been confirmed to work on FireFox 2+, IE 6+, all versions of Edge, Chrome 10+, and Opera 10+.
+
+Any other browsers are unsupported as of me writing this, but support *can* be added.
+
+### Adding additional browser checks
+
+To add a new browser to the script, you must do three things:
+
+1. Add a new property to the `browserElements.getFuncs` object with a string key representing the browser's name ("ie", "firefox", etc.), and a function value that takes an optional userAgent string (should default to `navigator.userAgent`), and returns `true` if the UA is from the browser, and `false` otherwise.
+
+2. Add said key to the `broswerElements.types` Array.
+
+3. Add a new element to `browserElements.getVersion` with the key same key and a function that takes an optional userAgent string and returns the browser's major version for that userAgent.
+
+If this is done correctly, and `browserElements.main()` is called again, the script should detect `if-newBrowser` as a valid if-attribute.
